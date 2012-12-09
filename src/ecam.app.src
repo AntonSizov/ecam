@@ -1,0 +1,13 @@
+{application, ecam,
+ [
+  {description, "Will implement oscam proxy functionality"},
+  {vsn, "0.0.1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+				  oscam_port
+                 ]},
+  {mod, { ecam_app, []}},
+  {env, []}
+ ]}.

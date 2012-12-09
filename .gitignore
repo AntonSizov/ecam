@@ -1,0 +1,6 @@
+*.eunit
+ecam.plt
+ebin
+deps
+erl_crash.dump
+rel/ecam
