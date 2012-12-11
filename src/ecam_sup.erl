@@ -9,8 +9,9 @@
 %% Supervisor callbacks
 -export([init/1]).
 
-%% Helper macro for declaring children of supervisor
--define(CHILD(I, Type), {I, {I, start_link, []}, permanent, 5000, Type, [I]}).
+-define(NewcamdClient(SpecId, Spec),
+	{SpecId, {ecam_newcamd_client, start_link, [Spec]},
+			permanent, 5000, worker, [ecam_newcamd_client]}).
 
 %% ===================================================================
 %% API functions
@@ -24,5 +25,14 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-    {ok, { {one_for_one, 5, 10}, []} }.
+	{ok, Readers} = application:get_env(ecam, readers),
 
+	%% perform newcamd readers spec
+	NewcamdReaders = proplists:get_value(newcamd, Readers, []),
+	{NewcamdReadersSpec, _} = lists:foldl(fun(Reader, {Acc, N}) ->
+		SpecId = list_to_atom("newcamd_client_" ++ integer_to_list(N)),
+		Spec = ?NewcamdClient(SpecId, Reader),
+		{[Spec | Acc], N + 1}
+	end, {[], 1}, NewcamdReaders),
+
+    {ok, { {one_for_one, 5, 10}, NewcamdReadersSpec} }.
